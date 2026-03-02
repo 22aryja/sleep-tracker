@@ -1,10 +1,23 @@
 <!-- LiquidGlass.svelte -->
 <script lang="ts">
-	let { children } = $props();
+	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
+
+	let {
+		children,
+		class: className = '',
+		...rest
+	}: HTMLAttributes<HTMLDivElement> & {
+		children: Snippet;
+	} = $props();
 	const filterId = `liquid-glass-${crypto.randomUUID().slice(0, 8)}`;
 </script>
 
-<div class="liquid-glass" style="backdrop-filter: brightness(1.1) url(#{filterId});">
+<div
+	class="liquid-glass {className}"
+	style="backdrop-filter: brightness(1.1) url(#{filterId}); {rest.style ?? ''}"
+	{...rest}
+>
 	{@render children()}
 </div>
 
@@ -33,8 +46,9 @@
 		position: absolute;
 		inset: 0;
 		z-index: 0;
+		pointer-events: none;
 		box-shadow:
 			inset 6px 6px 0px -6px rgba(255, 255, 255, 0.7),
-			inset 0 0 8px 1px rgba(255, 255, 255, 0.7);
+			inset 0 0 8px 0.5px rgba(255, 255, 255, 0.7);
 	}
 </style>
