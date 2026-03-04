@@ -49,6 +49,6 @@
 		pointer-events: none;
 		box-shadow:
 			inset 6px 6px 0px -6px rgba(255, 255, 255, 0.7),
-			inset 0 0 8px 0.5px rgba(255, 255, 255, 0.7);
+			inset 0 0 6px 0.5px rgba(255, 255, 255, 0.7);
 	}
 </style>
