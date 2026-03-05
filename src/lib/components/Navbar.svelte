@@ -9,6 +9,7 @@
 	interface NavItem {
 		name: string;
 		redirectTo: string;
+		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 		icon: Component<IconProps, {}, ''>;
 	}
 
@@ -18,22 +19,8 @@
 		{ name: 'Profile', redirectTo: '/profile', icon: User }
 	];
 
-	let currentIndex = $state<number>(0);
-	let position = $derived((): number => {
-		switch (currentIndex) {
-			case 0:
-				return 0.25;
-			case 1:
-				return 4.25;
-			case 2:
-				return 8.25;
-			default:
-				return 0;
-		}
-	});
-
-	const handleNavigate = (item: NavItem, index: number) => {
-		currentIndex = index;
+	const handleNavigate = (item: NavItem) => {
+		// eslint-disable-next-line svelte/no-navigation-without-resolve
 		goto(item.redirectTo);
 	};
 </script>
@@ -41,11 +28,11 @@
 <section class="flex w-full items-center justify-center p-0.5">
 	<LiquidGlass class="w-1/2 rounded-xl">
 		<nav class="relative flex w-full justify-center gap-4 overflow-hidden rounded-xl p-2">
-			{#each items as item, index (item.name)}
+			{#each items as item(item.name)}
 				{@const isActive: boolean = page.url.pathname === item.redirectTo}
 				<button
 					class="flex w-12 shrink-0 flex-col items-center"
-					onclick={() => handleNavigate(item, index)}
+					onclick={() => handleNavigate(item)}
 				>
 					<item.icon
 						strokeWidth={1}
@@ -56,11 +43,6 @@
 					</h1>
 				</button>
 			{/each}
-			<!-- svelte-ignore element_invalid_self_closing_tag -->
-			<div
-				class="pointer-events-none absolute top-0 left-0 flex h-14 w-14 shrink-0 rounded-full bg-white opacity-10 transition-transform"
-				style:transform={`translateX(${position()}rem)`}
-			/>
 		</nav>
 	</LiquidGlass>
 </section>

@@ -8,6 +8,6 @@
 
 <svelte:head><link rel="icon" href={favicon} /></svelte:head>
 {@render children()}
-<div class="absolute top-0 left-0 flex h-screen w-full items-end justify-center">
+<div class="fixed bottom-0 left-0 w-full z-9999">
 	<Navbar />
 </div>
