@@ -8,8 +8,10 @@ function createSettings(): Writable<Settings> {
 	const stored = localStorage.getItem(SETTINGS_KEY);
 	const savedRadius = stored ? JSON.parse(stored).alarmRadius ?? DEFAULT_ALARM_RADIUS : DEFAULT_ALARM_RADIUS;
 
+	const hasNotifications = typeof Notification !== 'undefined';
+
 	const store = writable<Settings>({
-		notifications: Notification.permission === 'granted',
+		notifications: hasNotifications && Notification.permission === 'granted',
 		allowTracking: false,
 		alarmRadius: savedRadius
 	});
@@ -18,13 +20,15 @@ function createSettings(): Writable<Settings> {
 		localStorage.setItem(SETTINGS_KEY, JSON.stringify({ alarmRadius: value.alarmRadius }));
 	});
 
-	navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-		store.update((s) => ({ ...s, allowTracking: result.state === 'granted' }));
-
-		result.addEventListener('change', () => {
+	if (navigator.permissions) {
+		navigator.permissions.query({ name: 'geolocation' }).then((result) => {
 			store.update((s) => ({ ...s, allowTracking: result.state === 'granted' }));
-		});
-	});
+
+			result.addEventListener('change', () => {
+				store.update((s) => ({ ...s, allowTracking: result.state === 'granted' }));
+			});
+		}).catch(() => {});
+	}
 
 	return store;
 }

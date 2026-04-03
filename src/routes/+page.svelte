@@ -81,7 +81,7 @@
 			if (audioCtx) scheduleBeeps(audioCtx);
 		}, 2500);
 		navigator.vibrate?.([500, 150, 500, 150, 500, 150, 1000]);
-		if (Notification.permission === 'granted') {
+		if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
 			new Notification('Wake up! 🔔', {
 				body: "You're approaching your destination.",
 				silent: false
@@ -249,7 +249,7 @@
 			if (!alarmTriggered) setDestination(e.latlng.lat, e.latlng.lng);
 		});
 
-		if ('Notification' in window && Notification.permission === 'default') {
+		if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
 			Notification.requestPermission();
 		}
 
