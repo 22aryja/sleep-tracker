@@ -73,7 +73,7 @@
 {#if mounted}
 	<div class="min-h-dvh w-full overflow-y-auto bg-[#0e0f11] pb-10 text-[#f0ede8]">
 		<!-- Header -->
-		<div class="relative overflow-hidden px-6 pt-14">
+		<div class="relative px-6 pt-14">
 			<div
 				class="pointer-events-none absolute -top-16 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(245,166,35,0.12)_0%,transparent_70%)]"
 			></div>

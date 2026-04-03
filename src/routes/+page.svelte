@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { settings } from '$lib/stores/settings';
 
 	let mapContainer: HTMLDivElement;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,7 +32,7 @@
 	let audioCtx: AudioContext | null = null;
 	let alarmLoopId: ReturnType<typeof setInterval> | null = null;
 
-	const ALARM_THRESHOLD_M = 300;
+	const alarmRadius = $derived($settings.alarmRadius);
 
 	// ─── Helpers ────────────────────────────────────────────────
 
@@ -139,7 +140,7 @@
 				if (destination) {
 					const dist = haversine(lat, lng, destination.lat, destination.lng);
 					distanceMeters = dist;
-					if (dist <= ALARM_THRESHOLD_M) triggerAlarm();
+					if (dist <= alarmRadius) triggerAlarm();
 				}
 			},
 			(err) => {
@@ -189,7 +190,7 @@
 
 		destMarker = L.marker([lat, lng], { icon }).addTo(map);
 		destCircle = L.circle([lat, lng], {
-			radius: ALARM_THRESHOLD_M,
+			radius: alarmRadius,
 			color: '#f5a623',
 			fillColor: '#f5a623',
 			fillOpacity: 0.08,
@@ -203,7 +204,7 @@
 		if (currentPos) {
 			const dist = haversine(currentPos.lat, currentPos.lng, lat, lng);
 			distanceMeters = dist;
-			if (dist <= ALARM_THRESHOLD_M) triggerAlarm();
+			if (dist <= alarmRadius) triggerAlarm();
 		}
 	}
 
@@ -329,7 +330,7 @@
 		<div class="mx-5 mt-3 mb-4 flex items-center justify-between">
 			<div class="flex items-center gap-2">
 				<div class="h-3 w-3 rounded-full border-2 border-dashed border-[#f5a623] opacity-70"></div>
-				<span class="text-[11px] text-[#666]">Alarm triggers within {ALARM_THRESHOLD_M} m</span>
+				<span class="text-[11px] text-[#666]">Alarm triggers within {alarmRadius} m</span>
 			</div>
 			<button
 				onclick={clearDestination}
@@ -357,7 +358,7 @@
 		<p class="mb-2 text-[11px] font-semibold tracking-widest text-[#f5a623] uppercase">Wake up!</p>
 		<h1 class="mb-3 text-4xl font-extrabold text-gray-200">You've arrived!</h1>
 		<p class="mb-10 max-w-xs text-sm leading-relaxed text-[#888]">
-			You're within {ALARM_THRESHOLD_M} m of your destination. Time to get off!
+			You're within {alarmRadius} m of your destination. Time to get off!
 		</p>
 
 		<button
