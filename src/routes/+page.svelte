@@ -88,7 +88,9 @@
 
 	function stopAlarm() {
 		alarmTriggered = false;
-		alarmLoopId && clearInterval(alarmLoopId);
+		if (alarmLoopId) {
+			clearInterval(alarmLoopId);
+		}
 		alarmLoopId = null;
 		audioCtx?.close();
 		audioCtx = null;
@@ -196,11 +198,17 @@
 		}).addTo(map);
 
 		if (!tracking) startTracking();
+
+		// Check distance immediately with current position
+		if (currentPos) {
+			const dist = haversine(currentPos.lat, currentPos.lng, lat, lng);
+			distanceMeters = dist;
+			if (dist <= ALARM_THRESHOLD_M) triggerAlarm();
+		}
 	}
 
 	function clearDestination() {
 		stopAlarm();
-		stopTracking();
 		destMarker?.remove();
 		destMarker = null;
 		destCircle?.remove();
@@ -245,7 +253,7 @@
 {#if currentPos}
 	<button
 		onclick={() => map.setView([currentPos!.lat, currentPos!.lng], 15)}
-		class="absolute right-4 z-500 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#0e0f11]/90 text-lg backdrop-blur transition-colors active:bg-white/10"
+		class="absolute right-4 z-500 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#0e0f11]/90 text-lg backdrop-blur transition-colors active:bg-white/10 text-white/50"
 		style="bottom: {destination && !alarmTriggered ? '17rem' : '6.5rem'}"
 		title="Center on my location"
 	>
