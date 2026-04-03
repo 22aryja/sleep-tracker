@@ -3,6 +3,7 @@
 	import { authState } from '$lib/stores/auth.svelte';
 	import UpgradeModal from '$lib/components/UpgradeModal.svelte';
 	import { AppUser } from '$lib/user/controls';
+	import Settings from '$lib/components/Settings.svelte';
 
 	const appUser: AppUser = new AppUser();
 
@@ -47,14 +48,6 @@
 		{ icon: '🌍', label: 'Globe Trotter', desc: 'Slept in 3 cities', unlocked: true },
 		{ icon: '🎯', label: 'Goal Crusher', desc: 'Hit target 30 days', unlocked: false },
 		{ icon: '⭐', label: 'Perfect Week', desc: '8h every day', unlocked: false }
-	];
-
-	const settings = [
-		{ icon: '🔔', label: 'Notifications', value: 'On' },
-		{ icon: '🎯', label: 'Sleep Goal', value: '8h 00m' },
-		{ icon: '🌍', label: 'Location Tracking', value: 'Active' },
-		{ icon: '🌙', label: 'Bedtime Reminder', value: '10:30 PM' },
-		{ icon: '📊', label: 'Weekly Report', value: 'Sunday' }
 	];
 
 	const circumference = 2 * Math.PI * 50;
@@ -298,26 +291,7 @@
 		</div>
 
 		<!-- Settings -->
-		<div class="px-5 pb-6">
-			<p class="mb-3.5 text-[13px] font-bold tracking-widest text-[#666] uppercase">Settings</p>
-			<div class="overflow-hidden rounded-[18px] border border-white/[0.07] bg-[#16171b]">
-				{#each settings as s, i (i)}
-					<div
-						class="flex cursor-pointer items-center gap-3.5 px-[18px] py-4 transition-colors hover:bg-white/[0.03]"
-						style={i < settings.length - 1 ? 'border-bottom: 1px solid rgba(255,255,255,0.07)' : ''}
-					>
-						<div
-							class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(245,166,35,0.12)] text-base"
-						>
-							{s.icon}
-						</div>
-						<span class="flex-1 text-sm">{s.label}</span>
-						<span class="mr-1.5 text-xs text-[#666]">{s.value}</span>
-						<span class="text-xs text-white/20">›</span>
-					</div>
-				{/each}
-			</div>
-		</div>
+		<Settings />
 
 		<!-- Sign out -->
 		<div class="px-5">
