@@ -4,6 +4,7 @@
 	import UpgradeModal from '$lib/components/UpgradeModal.svelte';
 	import { AppUser } from '$lib/user/controls';
 	import Settings from '$lib/components/Settings.svelte';
+	import { trips, getStats, formatDuration, getWeeklyChart, getAchievements } from '$lib/stores/trips';
 
 	const appUser: AppUser = new AppUser();
 
@@ -23,36 +24,30 @@
 		}
 	}
 
-	const stats = [
-		{ label: 'Avg Sleep', value: '7h 24m', icon: '🌙' },
-		{ label: 'Streak', value: '12 days', icon: '🔥' },
-		{ label: 'Sleep Score', value: '84', icon: '⚡' },
-		{ label: 'Locations', value: '5', icon: '📍' }
-	];
+	const computed = $derived(() => {
+		const t = $trips;
+		const s = getStats(t);
+		return {
+			stats: s,
+			weekly: getWeeklyChart(t),
+			achievements: getAchievements(t, s.streak, s.locations)
+		};
+	});
 
-	const sleepHistory = [
-		{ day: 'Mon', hours: 6.5 },
-		{ day: 'Tue', hours: 7.2 },
-		{ day: 'Wed', hours: 5.8 },
-		{ day: 'Thu', hours: 8.1 },
-		{ day: 'Fri', hours: 7.6 },
-		{ day: 'Sat', hours: 9.0 },
-		{ day: 'Sun', hours: 7.4 }
-	];
+	const stats = $derived([
+		{ label: 'Avg Sleep', value: formatDuration(computed().stats.avgSleep), icon: '🌙' },
+		{ label: 'Streak', value: `${computed().stats.streak} days`, icon: '🔥' },
+		{ label: 'Sleep Score', value: `${computed().stats.score}`, icon: '⚡' },
+		{ label: 'Locations', value: `${computed().stats.locations}`, icon: '📍' }
+	]);
 
-	const maxHours = Math.max(...sleepHistory.map((d) => d.hours));
-
-	const achievements = [
-		{ icon: '🏆', label: 'Early Riser', desc: '7 days in a row', unlocked: true },
-		{ icon: '💤', label: 'Deep Sleeper', desc: '8h+ three nights', unlocked: true },
-		{ icon: '🌍', label: 'Globe Trotter', desc: 'Slept in 3 cities', unlocked: true },
-		{ icon: '🎯', label: 'Goal Crusher', desc: 'Hit target 30 days', unlocked: false },
-		{ icon: '⭐', label: 'Perfect Week', desc: '8h every day', unlocked: false }
-	];
+	const sleepHistory = $derived(computed().weekly);
+	const maxHours = $derived(Math.max(...sleepHistory.map((d) => d.hours), 1));
+	const achievements = $derived(computed().achievements);
 
 	const circumference = 2 * Math.PI * 50;
-	const score = 84;
-	const dashOffset = circumference * (1 - score / 100);
+	const score = $derived(computed().stats.score);
+	const dashOffset = $derived(circumference * (1 - score / 100));
 
 	function startEdit() {
 		nameInput = userName;

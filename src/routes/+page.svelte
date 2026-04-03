@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { settings } from '$lib/stores/settings';
+	import { trips } from '$lib/stores/trips';
 
 	let mapContainer: HTMLDivElement;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,6 +32,7 @@
 	let alarmTriggered = $state(false);
 	let audioCtx: AudioContext | null = null;
 	let alarmLoopId: ReturnType<typeof setInterval> | null = null;
+	let tripStartedAt: number | null = null;
 
 	const alarmRadius = $derived($settings.alarmRadius);
 
@@ -100,6 +102,18 @@
 	function triggerAlarm() {
 		if (alarmTriggered) return;
 		alarmTriggered = true;
+
+		if (tripStartedAt && destination) {
+			const now = Date.now();
+			trips.addTrip({
+				startedAt: tripStartedAt,
+				arrivedAt: now,
+				duration: now - tripStartedAt,
+				destination: { lat: destination.lat, lng: destination.lng }
+			});
+			tripStartedAt = null;
+		}
+
 		startAlarm();
 	}
 
@@ -170,6 +184,7 @@
 
 	function setDestination(lat: number, lng: number) {
 		destination = { lat, lng };
+		tripStartedAt = Date.now();
 
 		destCircle?.remove();
 		destMarker?.remove();
@@ -216,6 +231,7 @@
 		destCircle = null;
 		destination = null;
 		distanceMeters = null;
+		tripStartedAt = null;
 	}
 
 	// ─── Lifecycle ───────────────────────────────────────────────
