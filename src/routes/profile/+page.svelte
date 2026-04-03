@@ -1,10 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { authState } from '$lib/stores/auth.svelte';
+	import UpgradeModal from '$lib/components/UpgradeModal.svelte';
+	import { AppUser } from '$lib/user/controls';
+
+	const appUser: AppUser = new AppUser();
 
 	let mounted = $state(false);
 	let editingName = $state(false);
-	let userName = $state('John');
+	let userName = $state(appUser.get('firstName'));
 	let nameInput = $state('');
+	let showUpgrade = $state(false);
+	let upgradeFeature = $state('');
+
+	const isFree = $derived(authState.user?.plan === 'free');
+
+	function gatedClick(feature: string) {
+		if (isFree) {
+			upgradeFeature = feature;
+			showUpgrade = true;
+		}
+	}
 
 	const stats = [
 		{ label: 'Avg Sleep', value: '7h 24m', icon: '🌙' },
@@ -52,6 +68,7 @@
 
 	function saveName() {
 		if (nameInput.trim()) userName = nameInput.trim();
+		appUser.update('firstName', userName);
 		editingName = false;
 	}
 
@@ -123,39 +140,55 @@
 		</div>
 
 		<!-- Score ring -->
-		<div class="flex justify-center py-6">
-			<div class="relative h-28 w-28">
-				<svg class="-rotate-90" width="112" height="112" viewBox="0 0 120 120">
-					<circle
-						cx="60"
-						cy="60"
-						r="50"
-						fill="none"
-						stroke="rgba(255,255,255,0.06)"
-						stroke-width="8"
-					/>
-					<circle
-						cx="60"
-						cy="60"
-						r="50"
-						fill="none"
-						stroke="#f5a623"
-						stroke-width="8"
-						stroke-linecap="round"
-						stroke-dasharray={circumference}
-						stroke-dashoffset={dashOffset}
-					/>
-				</svg>
-				<div class="absolute inset-0 flex flex-col items-center justify-center">
-					<span class="text-3xl leading-none font-extrabold">{score}</span>
-					<span class="mt-0.5 text-[10px] tracking-widest text-[#666] uppercase">Score</span>
+		<div class="relative">
+			{#if isFree}
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<div
+					class="absolute inset-0 z-10 flex cursor-pointer items-center justify-center rounded-2xl"
+					onclick={() => gatedClick('Sleep Score')}
+				>
+					<div class="absolute inset-0 backdrop-blur-[6px]"></div>
+					<div class="relative flex flex-col items-center gap-1">
+						<span class="text-2xl">🔒</span>
+						<span class="text-[11px] font-semibold text-[#f5a623]">Pro</span>
+					</div>
+				</div>
+			{/if}
+			<div class="flex justify-center py-6">
+				<div class="relative h-28 w-28">
+					<svg class="-rotate-90" width="112" height="112" viewBox="0 0 120 120">
+						<circle
+							cx="60"
+							cy="60"
+							r="50"
+							fill="none"
+							stroke="rgba(255,255,255,0.06)"
+							stroke-width="8"
+						/>
+						<circle
+							cx="60"
+							cy="60"
+							r="50"
+							fill="none"
+							stroke="#f5a623"
+							stroke-width="8"
+							stroke-linecap="round"
+							stroke-dasharray={circumference}
+							stroke-dashoffset={dashOffset}
+						/>
+					</svg>
+					<div class="absolute inset-0 flex flex-col items-center justify-center">
+						<span class="text-3xl leading-none font-extrabold">{score}</span>
+						<span class="mt-0.5 text-[10px] tracking-widest text-[#666] uppercase">Score</span>
+					</div>
 				</div>
 			</div>
 		</div>
 
 		<!-- Stats grid -->
 		<div class="grid grid-cols-2 gap-2.5 px-5 pb-6">
-			{#each stats as s, i}
+			{#each stats as s, i (i)}
 				<div
 					class="rounded-[18px] border border-white/[0.07] bg-[#16171b] p-4"
 					style="animation: fadeUp 0.4s {i * 0.05 + 0.05}s both"
@@ -168,11 +201,27 @@
 		</div>
 
 		<!-- Weekly chart -->
-		<div class="px-5 pb-6">
+		<div class="relative px-5 pb-6">
+			{#if isFree}
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<div
+					class="absolute inset-0 z-10 flex cursor-pointer items-center justify-center px-5"
+					onclick={() => gatedClick('Sleep Analytics')}
+				>
+					<div
+						class="absolute top-7 right-5 bottom-0 left-5 rounded-[18px] backdrop-blur-[6px]"
+					></div>
+					<div class="relative mt-5 flex flex-col items-center gap-1">
+						<span class="text-2xl">🔒</span>
+						<span class="text-[11px] font-semibold text-[#f5a623]">Pro</span>
+					</div>
+				</div>
+			{/if}
 			<p class="mb-3.5 text-[13px] font-bold tracking-widest text-[#666] uppercase">This Week</p>
 			<div class="rounded-[18px] border border-white/[0.07] bg-[#16171b] px-4 pt-4 pb-3">
 				<div class="mb-2 flex h-20 items-end gap-2">
-					{#each sleepHistory as d}
+					{#each sleepHistory as d, i (i)}
 						{@const pct = (d.hours / maxHours) * 100}
 						<div class="flex h-full flex-1 flex-col items-center justify-end gap-1">
 							<div
@@ -200,10 +249,24 @@
 		</div>
 
 		<!-- Achievements -->
-		<div class="px-5 pb-6">
+		<div class="relative px-5 pb-6">
+			{#if isFree}
+				<!-- svelte-ignore a11y_no_static_element_interactions -->
+				<!-- svelte-ignore a11y_click_events_have_key_events -->
+				<div
+					class="absolute inset-0 z-10 flex cursor-pointer items-center justify-center px-5"
+					onclick={() => gatedClick('Achievements')}
+				>
+					<div class="absolute top-7 right-5 bottom-0 left-5 rounded-2xl backdrop-blur-[6px]"></div>
+					<div class="relative mt-5 flex flex-col items-center gap-1">
+						<span class="text-2xl">🔒</span>
+						<span class="text-[11px] font-semibold text-[#f5a623]">Pro</span>
+					</div>
+				</div>
+			{/if}
 			<p class="mb-3.5 text-[13px] font-bold tracking-widest text-[#666] uppercase">Achievements</p>
 			<div class="flex flex-col gap-2.5">
-				{#each achievements as a}
+				{#each achievements as a, i (i)}
 					<div
 						class="flex items-center gap-3.5 rounded-2xl border bg-[#16171b] px-4 py-3.5"
 						style="border-color: {a.unlocked ? 'rgba(245,166,35,0.2)' : 'rgba(255,255,255,0.07)'}"
@@ -238,7 +301,7 @@
 		<div class="px-5 pb-6">
 			<p class="mb-3.5 text-[13px] font-bold tracking-widest text-[#666] uppercase">Settings</p>
 			<div class="overflow-hidden rounded-[18px] border border-white/[0.07] bg-[#16171b]">
-				{#each settings as s, i}
+				{#each settings as s, i (i)}
 					<div
 						class="flex cursor-pointer items-center gap-3.5 px-[18px] py-4 transition-colors hover:bg-white/[0.03]"
 						style={i < settings.length - 1 ? 'border-bottom: 1px solid rgba(255,255,255,0.07)' : ''}
@@ -265,6 +328,7 @@
 			</button>
 		</div>
 	</div>
+	<UpgradeModal bind:show={showUpgrade} feature={upgradeFeature} />
 {/if}
 
 <style>

@@ -30,7 +30,7 @@
 
 		<!-- Feature pills -->
 		<div class="flex flex-wrap justify-center gap-2">
-			{#each ['🗺️ Sleep Map', '📊 Analytics', '🏆 Achievements', '💡 Tips'] as f}
+			{#each ['🗺️ Sleep Map', '📊 Analytics', '🏆 Achievements', '💡 Tips'] as f, i (i)}
 				<span
 					class="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-[11px] text-[#888]"
 					>{f}</span

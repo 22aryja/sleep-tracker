@@ -1,9 +1,11 @@
 <script lang="ts">
 	import LiquidGlass from '$lib/ui/LiquidGlass.svelte';
+	import UpgradeModal from '$lib/components/UpgradeModal.svelte';
 	import { Star, User, Map, type IconProps } from '@lucide/svelte';
 	import { page } from '$app/state';
 	import { cn } from '$lib/utils';
 	import { goto } from '$app/navigation';
+	import { authState } from '$lib/stores/auth.svelte';
 	import type { Component } from 'svelte';
 
 	interface NavItem {
@@ -11,19 +13,32 @@
 		redirectTo: string;
 		// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 		icon: Component<IconProps, {}, ''>;
+		proOnly?: boolean;
 	}
 
 	const items: NavItem[] = [
 		{ name: 'Map', redirectTo: '/', icon: Map },
-		{ name: 'Featured', redirectTo: '/featured', icon: Star },
+		{ name: 'Featured', redirectTo: '/featured', icon: Star, proOnly: true },
 		{ name: 'Profile', redirectTo: '/profile', icon: User }
 	];
 
+	let showUpgrade = $state(false);
+	let upgradeFeature = $state('');
+
+	const isFree: boolean = $derived(authState.user?.plan === 'free');
+
 	const handleNavigate = (item: NavItem) => {
+		if (item.proOnly && isFree) {
+			upgradeFeature = item.name;
+			showUpgrade = true;
+			return;
+		}
 		// eslint-disable-next-line svelte/no-navigation-without-resolve
 		goto(item.redirectTo);
 	};
 </script>
+
+<UpgradeModal bind:show={showUpgrade} feature={upgradeFeature} />
 
 <section class="flex w-full items-center justify-center p-0.5">
 	<LiquidGlass class="w-1/2 rounded-xl">

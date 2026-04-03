@@ -1,8 +1,13 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { authState } from '$lib/stores/auth.svelte';
+  import UpgradeModal from '$lib/components/UpgradeModal.svelte';
 
   let mounted = $state(false);
   let activeFilter = $state<'all' | 'articles' | 'spots'>('all');
+  let showUpgrade = $state(false);
+
+  const isFree = $derived(authState.user?.plan === 'free');
 
   const articles = [
     {
@@ -122,7 +127,20 @@
 </script>
 
 {#if mounted}
-<div class="min-h-dvh w-full overflow-y-auto bg-[#0e0f11] pb-10 text-[#f0ede8]">
+<div class="relative min-h-dvh w-full overflow-y-auto bg-[#0e0f11] pb-10 text-[#f0ede8]">
+
+  {#if isFree}
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div class="absolute inset-0 z-50 flex items-start justify-center pt-60" onclick={() => (showUpgrade = true)}>
+      <div class="absolute inset-0 backdrop-blur-sm"></div>
+      <div class="relative flex cursor-pointer flex-col items-center gap-2 rounded-2xl border border-white/10 bg-[#16171b]/80 px-8 py-6">
+        <span class="text-3xl">🔒</span>
+        <span class="text-sm font-bold text-[#f0ede8]">Pro Feature</span>
+        <span class="text-xs text-[#888]">Tap to learn more</span>
+      </div>
+    </div>
+  {/if}
 
   <!-- Top bar -->
   <div class="sticky top-0 z-10 bg-[#0e0f11]/90 px-6 pb-4 pt-14 backdrop-blur">
@@ -197,6 +215,7 @@
   </div>
 
 </div>
+<UpgradeModal bind:show={showUpgrade} feature="Featured" />
 {/if}
 
 <style>

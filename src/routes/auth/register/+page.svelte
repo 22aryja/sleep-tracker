@@ -82,7 +82,7 @@
 
 	<!-- Step indicator -->
 	<div class="mb-8 flex items-center gap-2">
-		{#each steps as label, i}
+		{#each steps as label, i (i)}
 			{@const idx = i + 1}
 			<div class="flex items-center gap-2">
 				<div
@@ -282,7 +282,7 @@
 					</div>
 				</div>
 				<ul class="flex flex-col gap-1.5 text-sm text-[#888]">
-					{#each ['Basic sleep logging', 'Weekly sleep chart', 'Sleep tips feed', '3 nearby spots'] as f}
+					{#each ['Basic sleep logging', 'Weekly sleep chart', 'Sleep tips feed', '3 nearby spots'] as f, i (i)}
 						<li class="flex items-center gap-2"><span class="text-[#f5a623]">✓</span>{f}</li>
 					{/each}
 				</ul>
@@ -335,7 +335,7 @@
 						'Sleep score & AI insights',
 						'Achievements & streaks',
 						'Priority support'
-					] as f}
+					] as f, i (i)}
 						<li class="flex items-center gap-2"><span class="text-[#f5a623]">✓</span>{f}</li>
 					{/each}
 				</ul>
